@@ -132,6 +132,8 @@ $ source ~/.bashrc
 
 ### caffe
 
+- [Nvidia-GPU-Install-and-Setup](https://github.com/L706077/Nvidia-GPU-Install-and-Setup)
+- [Installation Guide](https://github.com/BVLC/caffe/wiki/Ubuntu-16.04-or-15.10-Installation-Guide)
 - [指定python](https://www.cnblogs.com/TiBAi/p/6848307.html)
 - [Caffe Matlab接口](https://blog.csdn.net/yangguangqizhi/article/details/74174335)
 
@@ -325,8 +327,86 @@ $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 ```
 - solve
 - [Undefined reference to google protobuf](https://github.com/BVLC/caffe/issues/3046)
+- [protobuf install](https://blog.csdn.net/xiangxianghehe/article/details/78928629)
+- [Caffe中的Protobuf版本问题](https://blog.csdn.net/phdsky/article/details/80994090)
+```
+$ wget https://github.com/google/protobuf/archive/v3.5.1.tar.gz
+$ tar -xzvf v3.5.1.tar.gz
+$ cd protobuf-3.5.1/
+$ ./autogen.sh
+$ ./configure --prefix=/usr/local/protobuf
+$ sudo make -j8 
+$ sudo make install
+$ sudo ldconfig
+$ cd python/
+$ sudo python2.7 setup.py build 
+$ sudo python2.7 setup.py install 
+$ sudo python2.7 setup.py test
+```
+```
+edit Makefile.config
+INCLUDE_DIRS := /usr/local/protobuf/include $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial /usr/include 
+LIBRARY_DIRS := /usr/local/protobuf/lib $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial #/usr/local/matlab2016b/bin/glnxa64/
+```
+```
+edit CMakeLists.txt
+From
+# ---[ Flags
+if(UNIX OR APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall")
+endif()if()
+To
+# ---[ Flags
+if(UNIX OR APPLE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -std=c++11")
+endif()if()
+```
+```
+edit Makefile
+CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
+NVCCFLAGS += -D_FORCE_INLINES -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS) -std=c++11
+LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
+```
+- [Ubuntu16.04多个版本GCC编译器的安装和切换](https://www.cnblogs.com/uestc-mm/p/7511063.html)
+```
+$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
+$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
+```
+```
+$ git clone https://github.com/google/glog
+$ sudo apt-get install autoconf automake libtool
+$ cd glog
+$ ./autogen.sh 
+$ ./configure 
+$ make -j 24 
+$ sudo make install
+```
+```
+$ git clone https://github.com/gflags/gflags
+$ cd gflags
+$ cmake . 
+$ make -j 24 
+$ sudo make install
+```
+```
+$ sudo apt-get remove libprotobuf-dev
+$ sudo apt-get remove protobuf-compiler
+$ sudo apt-get remove python-protobuf
+$ sudo rm -rf /usr/local/bin/protoc
+$ sudo rm -rf /usr/bin/protoc
+$ sudo rm -rf /usr/local/include/google
+$ sudo rm -rf /usr/local/include/protobuf*
+$ sudo rm -rf /usr/local/lib/libproto*
+$ sudo rm -rf /usr/lib/libproto*
+$ sudo rm -rf /usr/include/google
+$ sudo rm -rf /usr/include/protobuf*
+$ sudo rm -rf /usr/lib/x86_64-linux-gnu/libproto*
+
+$ sudo apt-get update
+$ sudo ldconfig
+$ sudo apt-get install libprotobuf* protobuf-compiler python-protobuf
 ```
 
-```
 
 
+/home/superuser/anaconda3/pkgs/libprotobuf-3.5.2-0/
