@@ -173,6 +173,8 @@ OPENCV_VERSION := 3					---->	# OPENCV_VERSION := 3
 
 # CUDA_DIR := /usr/local/cuda   	---->   CUDA_DIR := /usr/local/cuda-9.0
 
+# USE_PKG_CONFIG := 1				---->	USE_PKG_CONFIG := 1 (if make fail on opencv)
+
 CUDA_ARCH :=    ...
                 -gencode arch=compute_70,code=sm_70 \
                 -gencode arch=compute_70,code=compute_70
@@ -209,7 +211,7 @@ NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS)
 $ mkdir build
 $ cd build
 $ cmake ..
-$ make all
+$ make all -j8
 $ make install
 $ make runtest
 ```
@@ -262,8 +264,12 @@ Makefile:127: recipe for target 'all' failed
 make: *** [all] Error 2
 ```
 - solve
-
-- [linux qt5.9](https://www.jianshu.com/p/afbc42ad2cfd)
+```
+add line in ~/caffe/CMakeLists.txt like opencv2.4.13
+---->find_package(Qt5 COMPONENTS Core Gui Qml Quick Test Widgets OpenGL Concurrent REQUIRED)
+```
+- [Caffe fails on QT with errors](https://github.com/BVLC/caffe/issues/5155)
+- [install linux qt5.9](https://www.jianshu.com/p/afbc42ad2cfd)
 ```
 $ sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1
 $ sudo apt-get install libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0
@@ -272,20 +278,55 @@ $ sudo apt-get install libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev libxc
 $ sudo apt-get install libxcb-render-util0 libxcb-render-util0-dev libxcb-glx0-dev libxcb-xinerama0-dev
 $ tar zxvf qt-everywhere-opensource-src-x.x.x.tar.gz
 $ ./configure
-$ ./configure -prefix "./build" -opensource -nomake tests
-$ ./configure -confirm-license -opensource -debug-and-release -static -static-runtime -force-debug-info -opengl dynamic -prefix "./build" -qt-sqlite -qt-pcre -qt-zlib -qt-libpng -qt-libjpeg -opengl desktop -qt-freetype -nomake tests -no-compile-examples -nomake examples 
+(skip)$ ./configure -prefix "./build" -opensource -nomake tests -no-xcb -no-compile-examples
+(skip)$ ./configure -confirm-license -opensource -debug-and-release -static -static-runtime -force-debug-info -opengl dynamic -prefix "./build" -qt-sqlite -qt-pcre -qt-zlib -qt-libpng -qt-libjpeg -opengl desktop -qt-freetype -nomake tests -no-compile-examples -nomake examples 
 $ sudo make all -j8
 $ sudo make install
 $ vim .bashrc
 ---->export PATH="/xxx/xxx//Qtx.x.x/x.x/gcc/bin":$PATH
 $ source .bashrc
 ```
+- [opencv re-compile](https://blog.csdn.net/leijd10/article/details/25240013)
 
 
+- issue 
+```
+../lib/libcaffe.so.1.0.0-rc3: undefined reference to `cv::imread(cv::String const&, int)'
+```
 
+- solve 
+```
+edit Makefile.config
+#OPENCV_VERSION := 3		---->	OPENCV_VERSION := 3
+```
+```
+edit CMakeLists.txt
+set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )	---->	# set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )
+```
 
+- issue
+```
+../lib/libcaffe.so.1.0.0-rc3: undefined reference to `leveldb::DB::Open(leveldb::Options const&, std::string const&, leveldb::DB**)'
+../lib/libcaffe.so.1.0.0-rc3: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+```
+- solve
+- [Caffe 1.0.0-rc3 make failed on Ubuntu 16.04 / CUDA 8.0](https://github.com/BVLC/caffe/issues/4492)
+```
+edit Makefile.config
+# CUSTOM_CXX := g++			---->	CUSTOM_CXX := /usr/bin/g++-5
+$ cmake .. -DCMAKE_CXX_COMPILER=g++-5
+```
 
+- issue
+```
+../lib/libcaffe.so.1.0.0-rc3: undefined reference to `google::protobuf::internal::AssignDescriptors
+(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, google::protobuf::internal::MigrationSchema const*, google::protobuf::Message const* const*, unsigned int const*, google::protobuf::MessageFactory*, google::protobuf::Metadata*, google::protobuf::EnumDescriptor const**, google::protobuf::ServiceDescriptor const**)'
 
+```
+- solve
+- [Undefined reference to google protobuf](https://github.com/BVLC/caffe/issues/3046)
+```
 
+```
 
 
