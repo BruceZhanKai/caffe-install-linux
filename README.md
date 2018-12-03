@@ -213,6 +213,7 @@ NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS)
 $ mkdir build
 $ cd build
 $ cmake ..
+$ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 $ make all -j8
 $ make install
 $ make runtest
@@ -334,13 +335,13 @@ $ wget https://github.com/google/protobuf/archive/v3.5.1.tar.gz
 $ tar -xzvf v3.5.1.tar.gz
 $ cd protobuf-3.5.1/
 $ ./autogen.sh
-$ ./configure --prefix=/usr/local/protobuf
+$ ./configure --prefix=/usr/local/protobuf CC=/usr/bin/gcc
 $ sudo make -j8 
 $ sudo make install
 $ sudo ldconfig
 $ cd python/
-$ sudo python2.7 setup.py build 
-$ sudo python2.7 setup.py install 
+$ sudo python2.7 setup.py build
+$ sudo python2.7 setup.py install
 $ sudo python2.7 setup.py test
 ```
 ```
@@ -378,14 +379,16 @@ $ sudo apt-get install autoconf automake libtool
 $ cd glog
 $ ./autogen.sh 
 $ ./configure 
-$ make -j 24 
+$ ./configure CPPFLAGS="-I/usr/include -fPIC" LDFLAGS="-L/usr/lib/x86_64-linux-gnu/"
+$ ./configure CPPFLAGS="-I/usr/include" LDFLAGS="-L/usr/lib/x86_64-linux-gnu/"
+$ sudo make -j8
 $ sudo make install
 ```
 ```
 $ git clone https://github.com/gflags/gflags
 $ cd gflags
 $ cmake . 
-$ make -j 24 
+$ sudo make -j8
 $ sudo make install
 ```
 ```
@@ -408,5 +411,72 @@ $ sudo apt-get install libprotobuf* protobuf-compiler python-protobuf
 ```
 
 
+```
+/home/superuser/anaconda3/pkgs/libprotobuf-3.5.2-0/include
+/home/superuser/anaconda3/pkgs/libprotobuf-3.5.2-0/lib
+```
 
-/home/superuser/anaconda3/pkgs/libprotobuf-3.5.2-0/
+
+
+- issue
+```
+[ 87%] Linking CXX shared library ../../lib/libcaffe.so
+/usr/bin/ld: /usr/local/lib/libgflags.a(gflags.cc.o): relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+/usr/local/lib/libgflags.a: error adding symbols: Bad value
+collect2: error: ld returned 1 exit status
+src/caffe/CMakeFiles/caffe.dir/build.make:35923: recipe for target 'lib/libcaffe.so.1.0.0' failed
+make[2]: *** [lib/libcaffe.so.1.0.0] Error 1
+CMakeFiles/Makefile2:304: recipe for target 'src/caffe/CMakeFiles/caffe.dir/all' failed
+make[1]: *** [src/caffe/CMakeFiles/caffe.dir/all] Error 2
+Makefile:127: recipe for target 'all' failed
+make: *** [all] Error 2
+superuser@dcn-gpu-data-v-l-02:/home/lili/bruce/github/caffe/build$ 
+```
+```
+re-install glog & gflags with -fPIC
+edit CMakeCache.txt
+--->CMAKE_CXX_FLAGS:STRING=-fPIC
+$ cd ~/gflags/
+$ mkdir build && cd build
+$ export CXXFLAGS="-fPIC" && cmake .. && make VERBOSE=1
+$ make -j4
+$ make install
+$ cd ~/caffe/build && cmake .. -DCMAKE_CXX_COMPILER=g++-5 && make clean && make all -j8
+```
+
+- issue
+```
+/home/lili/bruce/github/caffe/src/caffe/common.cpp: In function ‘void caffe::GlobalInit(int*, char***)’:
+/home/lili/bruce/github/caffe/src/caffe/common.cpp:45:5: error: ‘::gflags’ has not been declared
+   ::gflags::ParseCommandLineFlags(pargc, pargv, true);
+     ^
+[ 87%] Building CXX object src/caffe/CMakeFiles/caffe.dir/util/benchmark.cpp.o
+src/caffe/CMakeFiles/caffe.dir/build.make:35131: recipe for target 'src/caffe/CMakeFiles/caffe.dir/common.cpp.o' failed
+make[2]: *** [src/caffe/CMakeFiles/caffe.dir/common.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+CMakeFiles/Makefile2:304: recipe for target 'src/caffe/CMakeFiles/caffe.dir/all' failed
+make[1]: *** [src/caffe/CMakeFiles/caffe.dir/all] Error 2
+Makefile:127: recipe for target 'all' failed
+make: *** [all] Error 2
+```
+
+- solve
+- [Can't build with error ‘::gflags’ has not been declared](https://github.com/BVLC/caffe/issues/2597)
+```
+$ export CXXFLAGS="-fPIC" && cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DBUILD_gflags_LIB=ON
+$ sudo make install
+```
+
+- [Glog安裝與卸載](https://blog.csdn.net/u012348774/article/details/80620685)
+
+- [caffe:cmake编译指定glog,gflag路径](https://blog.csdn.net/10km/article/details/72967656)
+
+```
+$ cmake ..  -G "Unix Makefiles" \
+    -DGLOG_ROOT_DIR=/home/lili/bruce/glog \
+    -DGFLAGS_ROOT_DIR=/home/lili/bruce/gflags \
+	-DCMAKE_CXX_COMPILER=g++-5
+	```
+
+
+
