@@ -334,7 +334,8 @@ $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 ## All Caffe Issue of Protobuf
 
 
-以下Issue，斟酌參考，首先  
+以下Issue，斟酌參考，首先
+
 gcc和g++對齊到version 5.4.0 20160609 ->失敗 undefined reference to google::protobuf
 
 下了protobuf3.5.1，用源碼安裝再make -> 失敗 undefined reference to google::protobuf
@@ -349,13 +350,19 @@ gcc和g++對齊到version 5.4.0 20160609 ->失敗 undefined reference to google:
 
 路徑成功修改但make還是 ->失敗 undefined reference to google::protobuf
 
-最後查看server上不只3.5.1版本，在另一個anaconda上也有3.5.1和3.4.0  
-有人說不同版本共存會有衝突，將不同版本的protbuf刪除再編譯  
-礙於多人共同使用server，我沒有這樣做  
-正要考慮直接用anaconda創一個新環境來搞  
-最後在放棄之前下了protobuf3.6.0及3.3.0  
-先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make -> 幹終於成功了  
-以下是所有坑，傷眼睛斟酌看  
+最後查看server上不只3.5.1版本，在另一個anaconda上也有3.5.1和3.4.0
+
+有人說不同版本共存會有衝突，將不同版本的protbuf刪除再編譯
+
+礙於多人共同使用server，我沒有這樣做
+
+正要考慮直接用anaconda創一個新環境來搞
+
+最後在放棄之前下了protobuf3.6.0及3.3.0
+
+先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make -> 幹終於成功了
+
+以下是所有坑，傷眼睛斟酌看
 
 
 ### Caffe - undefined reference to `google::protobuf
