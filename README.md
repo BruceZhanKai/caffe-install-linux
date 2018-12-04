@@ -220,7 +220,7 @@ $ make runtest
 ## All Caffe Issue
 
 ### Cuda - error: too few arguments in function call
-- Show
+- Show Error
 ```
 superuser@dcn-gpu-data-v-l-02:/home/lili/bruce/github/NR-IQA-CNN/build$ make all
 [  1%] Built target proto
@@ -244,14 +244,13 @@ superuser@dcn-gpu-data-v-l-02:/home/lili/bruce/github/NR-IQA-CNN/build$.
 - [cuda多版本切換](https://blog.csdn.net/Maple2014/article/details/78574275)
 - [cudnn多版本切換](https://blog.csdn.net/zhaishengfu/article/details/52333674)
 - [cudnn安裝、路徑、版本](https://blog.csdn.net/ture_dream/article/details/52677619)
-```
-1. find the actaully cudnn path if there are not in /usr/local/cuda
-2. go to this [caffe/../cudnn.hpp](https://github.com/BVLC/caffe/blob/master/include/caffe/util/cudnn.hpp) 
- and Copy this and replace the old one
-```
+
+	1. find the actaully cudnn path if there are not in /usr/local/cuda
+	2. go to this [caffe/../cudnn.hpp](https://github.com/BVLC/caffe/blob/master/include/caffe/util/cudnn.hpp) 
+	and Copy this and replace the old one
 
 ### Qt - cannot find -lQt5::Core
-- Show
+- Show Error
 ```
 [ 80%] Linking CXX shared library ../../lib/libcaffe.so
 /usr/bin/ld: cannot find -lQt5::Core
@@ -295,7 +294,7 @@ $ source .bashrc
 
 
 ### Caffe - undefined reference to `cv::imread 
-- Show
+- Show Error
 ```
 $ make all -j8
 ...
@@ -305,29 +304,28 @@ $ make all -j8
 
 - Solve 
 
+	Maybe opencv2.4.13 I installed is not complete with python2.7 or ...
+	So I use other version already installed to do $ make all -j8
+	
+	Edit Makefile.config
 ```
-Maybe opencv2.4.13 I installed is not complete with python2.7 or ...
-So I use other version already installed to do $ make all -j8
-```
-```
-edit Makefile.config
 #OPENCV_VERSION := 3		---->	OPENCV_VERSION := 3
 ```
+	Edit CMakeLists.txt
 ```
-edit CMakeLists.txt
 set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )	---->	#set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )
 ```
 
 ### Leveldb - undefined reference to `leveldb::DB
-- Show
+- Show Error
 ```
 ../lib/libcaffe.so.1.0.0-rc3: undefined reference to `leveldb::DB::Open(leveldb::Options const&, std::string const&, leveldb::DB**)'
 ../lib/libcaffe.so.1.0.0-rc3: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
 ```
 - Solve
 - [Caffe 1.0.0-rc3 make failed on Ubuntu 16.04 / CUDA 8.0](https://github.com/BVLC/caffe/issues/4492)
+	Edit Makefile.config
 ```
-edit Makefile.config
 # CUSTOM_CXX := g++			---->	CUSTOM_CXX := /usr/bin/g++-5
 $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 ```
@@ -335,29 +333,27 @@ $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 
 ## All Caffe Issue of Protobuf
 
-```
-以下Issue，斟酌參考，首先
-gcc和g++對齊到version 5.4.0 20160609									->失敗	undefined reference to `google::protobuf
-下了protobuf3.5.1，用源碼安裝再make									->失敗	undefined reference to `google::protobuf
-接著下了glog和gflags，用源碼安裝再make									->失敗	undefined reference to `google::protobuf
-遇到gflags源碼安裝的其他問題，修改common.hpp問題消失但make還是		->失敗	undefined reference to `google::protobuf
-發現caffe cmake時，glog、gflags、protbuf的路徑無法被修改
-接著改~/caffe/build/CMakeCache.txt的glog、gflags、protbuf的路徑
-路徑成功修改但make還是													->失敗	undefined reference to `google::protobuf
-```
 
-```
-最後查看server上不只3.5.1版本，在另一個anaconda上也有3.5.1和3.4.0
-有人說不同版本共存會有衝突，將不同版本的protbuf刪除再編譯
-礙於多人共同使用server，我沒有這樣做
-正要考慮直接用anaconda創一個新環境來搞
-最後在放棄之前下了protobuf3.6.0及3.3.0
-先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make	->幹終於成功了
-以下是所有坑，傷眼睛斟酌看
-```
+	以下Issue，斟酌參考，首先
+	gcc和g++對齊到version 5.4.0 20160609									->失敗	undefined reference to `google::protobuf
+	下了protobuf3.5.1，用源碼安裝再make									->失敗	undefined reference to `google::protobuf
+	接著下了glog和gflags，用源碼安裝再make									->失敗	undefined reference to `google::protobuf
+	遇到gflags源碼安裝的其他問題，修改common.hpp問題消失但make還是		->失敗	undefined reference to `google::protobuf
+	發現caffe cmake時，glog、gflags、protbuf的路徑無法被修改
+	接著改~/caffe/build/CMakeCache.txt的glog、gflags、protbuf的路徑
+	路徑成功修改但make還是													->失敗	undefined reference to `google::protobuf
+	
+	最後查看server上不只3.5.1版本，在另一個anaconda上也有3.5.1和3.4.0
+	有人說不同版本共存會有衝突，將不同版本的protbuf刪除再編譯
+	礙於多人共同使用server，我沒有這樣做
+	正要考慮直接用anaconda創一個新環境來搞
+	最後在放棄之前下了protobuf3.6.0及3.3.0
+	先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make		->幹終於成功了
+	以下是所有坑，傷眼睛斟酌看
+
 
 ### Caffe - undefined reference to `google::protobuf
-- Show
+- Show Error
 ```
 ../lib/libcaffe.so.1.0.0-rc3: undefined reference to `google::protobuf::internal::AssignDescriptors
 (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, google::protobuf::internal::MigrationSchema const*, google::protobuf::Message const* const*, unsigned int const*, google::protobuf::MessageFactory*, google::protobuf::Metadata*, google::protobuf::EnumDescriptor const**, google::protobuf::ServiceDescriptor const**)'
@@ -366,7 +362,7 @@ gcc和g++對齊到version 5.4.0 20160609									->失敗	undefined reference to
 - [Undefined reference to google protobuf](https://github.com/BVLC/caffe/issues/3046)
 - [protobuf install](https://blog.csdn.net/xiangxianghehe/article/details/78928629)
 - [Caffe中的Protobuf版本问题](https://blog.csdn.net/phdsky/article/details/80994090)
-源碼安裝protobuf
+	源碼安裝protobuf
 ```
 $ wget https://github.com/google/protobuf/archive/v3.5.1.tar.gz
 $ tar -xzvf v3.5.1.tar.gz
@@ -382,13 +378,13 @@ $ sudo python2.7 setup.py install
 $ sudo python2.7 setup.py test
 ```
 
-Edit Makefile.config 讓protobuf的路徑擺最前面
+	Edit Makefile.config 讓protobuf的路徑擺最前面
 ```
 INCLUDE_DIRS := /usr/local/protobuf/include $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial /usr/include 
 LIBRARY_DIRS := /usr/local/protobuf/lib $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial #/usr/local/matlab2016b/bin/glnxa64/
 ```
 
-Edit CMakeLists.txt
+	Edit CMakeLists.txt
 ```
 From
 # ---[ Flags
@@ -402,21 +398,21 @@ if(UNIX OR APPLE)
 endif()if()
 ```
 
-Edit Makefile
+	Edit Makefile
 ```
 CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 NVCCFLAGS += -D_FORCE_INLINES -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS) -std=c++11
 LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 ```
 - [Ubuntu16.04多个版本GCC编译器的安装和切换](https://www.cnblogs.com/uestc-mm/p/7511063.html)
-對齊gcc g++版本
+	對齊gcc g++版本
 ```
 $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
 $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
 ```
 - [安装glog和gflags](https://blog.csdn.net/csm201314/article/details/75094527)
 - [GLog & GFlags 的安装](http://www.liuxiao.org/2018/04/glog-gflags-%E7%9A%84%E5%AE%89%E8%A3%85/)
-glog install from source
+	glog install from source
 ```
 $ git clone https://github.com/google/glog
 $ sudo apt-get install autoconf automake libtool
@@ -426,7 +422,7 @@ $ ./configure CPPFLAGS="-I/usr/local/include -fPIC" LDFLAGS="-L/usr/local/lib"
 $ sudo make -j8
 $ sudo make install
 ```
-gflags install from source
+	gflags install from source
 ```
 $ git clone https://github.com/gflags/gflags
 $ cd gflags
@@ -434,28 +430,28 @@ $ cmake .
 $ sudo make -j8
 $ sudo make install
 ```
-(skip)re-install protobuf相關package
+	(skip)re-install protobuf相關package
 ```
-$ sudo apt-get remove libprotobuf-dev
-$ sudo apt-get remove protobuf-compiler
-$ sudo apt-get remove python-protobuf
-$ sudo rm -rf /usr/local/bin/protoc
-$ sudo rm -rf /usr/bin/protoc
-$ sudo rm -rf /usr/local/include/google
-$ sudo rm -rf /usr/local/include/protobuf*
-$ sudo rm -rf /usr/local/lib/libproto*
-$ sudo rm -rf /usr/lib/libproto*
-$ sudo rm -rf /usr/include/google
-$ sudo rm -rf /usr/include/protobuf*
-$ sudo rm -rf /usr/lib/x86_64-linux-gnu/libproto*
+(skip)$ sudo apt-get remove libprotobuf-dev
+(skip)$ sudo apt-get remove protobuf-compiler
+(skip)$ sudo apt-get remove python-protobuf
+(skip)$ sudo rm -rf /usr/local/bin/protoc
+(skip)$ sudo rm -rf /usr/bin/protoc
+(skip)$ sudo rm -rf /usr/local/include/google
+(skip)$ sudo rm -rf /usr/local/include/protobuf*
+(skip)$ sudo rm -rf /usr/local/lib/libproto*
+(skip)$ sudo rm -rf /usr/lib/libproto*
+(skip)$ sudo rm -rf /usr/include/google
+(skip)$ sudo rm -rf /usr/include/protobuf*
+(skip)$ sudo rm -rf /usr/lib/x86_64-linux-gnu/libproto*
 
-$ sudo apt-get update
-$ sudo ldconfig
-$ sudo apt-get install libprotobuf* protobuf-compiler python-protobuf
+(skip)$ sudo apt-get update
+(skip)$ sudo ldconfig
+(skip)$ sudo apt-get install libprotobuf* protobuf-compiler python-protobuf
 ```
 
 ### Caffe - can not be used when making a shared object; recompile with -fPIC
-- Show
+- Show Error
 ```
 [ 87%] Linking CXX shared library ../../lib/libcaffe.so
 /usr/bin/ld: /usr/local/lib/libgflags.a(gflags.cc.o): relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
@@ -469,10 +465,9 @@ Makefile:127: recipe for target 'all' failed
 make: *** [all] Error 2
 superuser@dcn-gpu-data-v-l-02:/home/lili/bruce/github/caffe/build$ 
 ```
-- Solve
-re-install glog & gflags with -fPIC
+- Solve - re-install glog & gflags with -fPIC
+	Edit glfags/build/CMakeCache.txt
 ```
-edit glfags/build/CMakeCache.txt
 --->CMAKE_CXX_FLAGS:STRING=-fPIC
 $ cd ~/gflags/
 $ mkdir build && cd build
@@ -483,7 +478,7 @@ $ cd ~/caffe/build && cmake .. -DCMAKE_CXX_COMPILER=g++-5 && make clean && make 
 ```
 
 ### Caffe - error: ‘::gflags’ has not been declared
-- Show
+- Show Error
 ```
 /home/lili/bruce/github/caffe/src/caffe/common.cpp: In function ‘void caffe::GlobalInit(int*, char***)’:
 /home/lili/bruce/github/caffe/src/caffe/common.cpp:45:5: error: ‘::gflags’ has not been declared
@@ -508,8 +503,9 @@ make: *** [all] Error 2
 (skip)$ export CXXFLAGS="-fPIC" && cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DBUILD_gflags_LIB=ON
 (skip)$ sudo make -j4
 (skip)$ sudo make install
-
-in the file include/caffe/common.hpp
+```
+	Edit in the file include/caffe/common.hpp
+```
 #ifndef GFLAGS_GFLAGS_H_			--->	//#ifndef GFLAGS_GFLAGS_H_
 namespace gflags = google;
 #endif  // GFLAGS_GFLAGS_H_			--->	//#endif  // GFLAGS_GFLAGS_H_
@@ -519,7 +515,7 @@ namespace gflags = google;
 
 - [caffe:cmake编译指定glog,gflag路径](https://blog.csdn.net/10km/article/details/72967656)
 
-指定glog,gflag路径，至~/caffe/build/CMakeCache.txt修改glog,gflag,protobuf路徑
+	指定glog,gflag路径，至~/caffe/build/CMakeCache.txt修改glog,gflag,protobuf路徑
 ```
 $ vim ~/caffe/build/CMakeCache.txt
 //Path to a file.
@@ -583,7 +579,7 @@ PROTOC_ROOT_DIR:UNINITIALIZED=/home/lili/bruce/protobuf-3.6.0//5.1
 
 - [编译caffe时关于protobuf版本不同的问题](https://blog.csdn.net/m0_38082419/article/details/80117132)
 
-刪除protobuf3.5.1安裝在/usr/local/protobuf/*的所有檔案，下protobuf3.6.0安裝，caffe make，成功
+	刪除protobuf3.5.1安裝在/usr/local/protobuf/*的所有檔案，下protobuf3.6.0安裝，caffe make，成功
 ```
 $ sudo rm -rf /usr/local/protobuf
 $ tar -xzvf protobuf-all-3.6.0.tar.gz
