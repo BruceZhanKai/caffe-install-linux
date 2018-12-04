@@ -323,7 +323,7 @@ set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )	---->	#set( OpenCV_D
 ../lib/libcaffe.so.1.0.0-rc3: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
 ```
 - Solve
-- [Caffe 1.0.0-rc3 make failed on Ubuntu 16.04 / CUDA 8.0](https://github.com/BVLC/caffe/issues/4492)
+- [Caffe 1.0.0-rc3 make failed on Ubuntu 16.04 / CUDA 8.0](https://github.com/BVLC/caffe/issues/4492)  
 Edit Makefile.config  
 ```
 # CUSTOM_CXX := g++			---->	CUSTOM_CXX := /usr/bin/g++-5
@@ -335,20 +335,26 @@ $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
 
 
 以下Issue，斟酌參考，首先  
-gcc和g++對齊到version 5.4.0 20160609									->失敗	undefined reference to `google::protobuf  
-下了protobuf3.5.1，用源碼安裝再make									->失敗	undefined reference to `google::protobuf  
-接著下了glog和gflags，用源碼安裝再make									->失敗	undefined reference to `google::protobuf  
-遇到gflags源碼安裝的其他問題，修改common.hpp問題消失但make還是		->失敗	undefined reference to `google::protobuf  
-發現caffe cmake時，glog、gflags、protbuf的路徑無法被修改  
-接著改~/caffe/build/CMakeCache.txt的glog、gflags、protbuf的路徑  
-路徑成功修改但make還是													->失敗	undefined reference to `google::protobuf  
-  
+gcc和g++對齊到version 5.4.0 20160609 ->失敗 undefined reference to google::protobuf
+
+下了protobuf3.5.1，用源碼安裝再make -> 失敗 undefined reference to google::protobuf
+
+接著下了glog和gflags，用源碼安裝再make ->失敗 undefined reference to google::protobuf
+
+遇到gflags源碼安裝的其他問題，修改common.hpp問題消失但make還是 ->失敗 undefined reference to google::protobuf
+
+發現caffe cmake時，glog、gflags、protbuf的路徑無法被修改
+
+接著改~/caffe/build/CMakeCache.txt的glog、gflags、protbuf的路徑
+
+路徑成功修改但make還是 ->失敗 undefined reference to google::protobuf
+
 最後查看server上不只3.5.1版本，在另一個anaconda上也有3.5.1和3.4.0  
 有人說不同版本共存會有衝突，將不同版本的protbuf刪除再編譯  
 礙於多人共同使用server，我沒有這樣做  
 正要考慮直接用anaconda創一個新環境來搞  
 最後在放棄之前下了protobuf3.6.0及3.3.0  
-先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make		->幹終於成功了  
+先刪除3.5.1，$ sudo rm -rf /usr/local/protobuf，接著裝3.6.0，make -> 幹終於成功了  
 以下是所有坑，傷眼睛斟酌看  
 
 
@@ -362,6 +368,7 @@ gcc和g++對齊到version 5.4.0 20160609									->失敗	undefined reference to
 - [Undefined reference to google protobuf](https://github.com/BVLC/caffe/issues/3046)
 - [protobuf install](https://blog.csdn.net/xiangxianghehe/article/details/78928629)
 - [Caffe中的Protobuf版本问题](https://blog.csdn.net/phdsky/article/details/80994090)
+
 源碼安裝protobuf  
 ```
 $ wget https://github.com/google/protobuf/archive/v3.5.1.tar.gz
@@ -405,6 +412,7 @@ NVCCFLAGS += -D_FORCE_INLINES -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS) -st
 LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 ```
 - [Ubuntu16.04多个版本GCC编译器的安装和切换](https://www.cnblogs.com/uestc-mm/p/7511063.html)
+
 對齊gcc g++版本  
 ```
 $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
