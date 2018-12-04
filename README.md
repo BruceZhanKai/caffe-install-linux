@@ -427,6 +427,7 @@ $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
 ```
 - [安装glog和gflags](https://blog.csdn.net/csm201314/article/details/75094527)
 - [GLog & GFlags 的安装](http://www.liuxiao.org/2018/04/glog-gflags-%E7%9A%84%E5%AE%89%E8%A3%85/)
+
 glog install from source  
 ```
 $ git clone https://github.com/google/glog
@@ -480,8 +481,8 @@ Makefile:127: recipe for target 'all' failed
 make: *** [all] Error 2
 superuser@dcn-gpu-data-v-l-02:/home/lili/bruce/github/caffe/build$ 
 ```
-- Solve - re-install glog & gflags with -fPIC
-	Edit glfags/build/CMakeCache.txt
+- Solve - re-install glog & gflags with -fPIC  
+Edit glfags/build/CMakeCache.txt  
 ```
 --->CMAKE_CXX_FLAGS:STRING=-fPIC
 $ cd ~/gflags/
