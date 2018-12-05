@@ -65,6 +65,58 @@ $ python
 - [cuda9.0&opencv2.4.13](https://blog.csdn.net/zhuangwu116/article/details/81136117)
 
 - [cuda9.0&opencv3.1.0](https://blog.csdn.net/fk2016/article/details/83589726)
+### Install Dependencies
+```
+$ sudo apt-get update
+$ sudo apt-get install -y build-essential
+$ sudo apt-get install -y cmake
+$ sudo apt-get install -y libgtk2.0-dev
+$ sudo apt-get install -y pkg-config
+$ sudo apt-get install -y python-numpy python-dev
+$ sudo apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
+$ sudo apt-get install -y libjpeg-dev libpng12-dev libtiff5-dev libjasper-dev
+$ sudo apt-get -qq install libopencv-dev build-essential checkinstall cmake pkg-config yasm libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine2 libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python-dev python-numpy libtbb-dev libqt4-dev libgtk2.0-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils
+```
+### Compile and Install
+```
+$ wget http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.13/opencv-2.4.13.zip
+$ unzip opencv-2.4.13.zip
+$ cd opencv-2.4.13
+$ mkdir release
+$ cd release
+$ cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_QT=ON -DWITH_OPENGL=ON -DWITH_TBB=ON -DBUILD_NEW_PYTHON_SUPPORT=ON -DWITH_V4L=ON INSTALL_C_EXAMPLES=ON -DINSTALL_PYTHON_EXAMPLES=ON -DBUILD_EXAMPLES=ON -DWITH_XINE=ON -DINSTALL_TESTS=ON -DWITH_GSTREAMER=ON -DWITH_CUDA=OFF -DBUILD_EXAMPLES=ON ..
+$ make all -j8
+$ make install
+
+```
+### (skip)Environment Startup  
+```
+$ sudo gedit /etc/ld.so.conf.d/opencv.conf
+  /usr/local/lib  
+$ sudo ldconfig
+
+$ sudo gedit /etc/bash.bashrc 
+    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig  
+    export PKG_CONFIG_PATH
+-----------------------------------------------
+$ su //获取root权限，否则下面的source命令不可用  
+  su: Authentication failure  
+$ sudo passwd root
+  Enter new UNIX password:   
+  Retype new UNIX password:   
+  passwd: password updated successfully 
+-----------------------------------------------
+$ su
+
+# source /etc/bash.bashrc 
+然后按 Ctrl+d 组合键来退出root权限，接着输入下面的命令即可：
+
+$ sudo updatedb
+```
+
+
+
+
 ---
 ## Matlab Install
 
@@ -612,10 +664,199 @@ $ sudo python2.7 setup.py test
 $ cd /home/lili/bnruce/github/NR-IQA-CNN/build
 $ sudo cmake .. -DCMAKE_CXX_COMPILER=g++-5
 $ sudo make all -j8
-
-
-
-
-
+$ sudo make install
+$ sudo make runtest 
 
 ```
+
+### Caffe - No module named caffe
+- Show Error
+```
+$ python2.7
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import caffe
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: No module named caffe
+>>> 
+```
+- Solve
+```
+$ vim ~/.bashrc
+--->export PYTHONPATH=/home/lili/bruce/github/NR-IQA-CNN/python:$PYTHONPATH
+$ source ~/.bashrc
+```
+
+### Caffe - No module named skimage.io
+- Show Error
+```
+$ python2.7
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import caffe
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/home/lili/bruce/github/NR-IQA-CNN/python/caffe/__init__.py", line 1, in <module>
+    from .pycaffe import Net, SGDSolver, NesterovSolver, AdaGradSolver, RMSPropSolver, AdaDeltaSolver, AdamSolver
+  File "/home/lili/bruce/github/NR-IQA-CNN/python/caffe/pycaffe.py", line 15, in <module>
+    import caffe.io
+  File "/home/lili/bruce/github/NR-IQA-CNN/python/caffe/io.py", line 2, in <module>
+    import skimage.io
+ImportError: No module named skimage.io
+>>> 
+
+```
+- Solve
+```
+$ sudo apt-get install python-matplotlib python-numpy python-pil python-scipy
+$ sudo apt-get install build-essential cython
+$ sudo apt-get install python-skimage
+```
+### Caffe - SyntaxError: invalid syntax
+- Show Error
+```
+$ python2.7
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> improt caffe
+  File "<stdin>", line 1
+    improt caffe
+               ^
+SyntaxError: invalid syntax
+>>>
+```
+- Solve
+```
+$ pip install python-dateutil --upgrade
+```
+### Caffe - Success Import
+```
+$ python2.7
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import caffe
+/usr/lib/python2.7/dist-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
+  warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
+>>>
+```
+
+### Matlab rum file
+
+- Show Error
+```
+$ matlab -nodisplay -nodesktop -r prep_training_data
+
+                                            < M A T L A B (R) >
+                                  Copyright 1984-2016 The MathWorks, Inc.
+                                   R2016b (9.1.0.441655) 64-bit (glnxa64)
+                                             September 7, 2016
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+Warning: uigetdir is no longer supported when MATLAB is started with the -nodisplay or -noFigureWindows option
+or there is no display. For more information, see "Changes to -nodisplay and -noFigureWindows Startup Options"
+in the MATLAB Release Notes. To view the release note in your system browser, run
+web('www.mathworks.com/help/matlab/release-notes.html#br5ktrh-3', '-browser') 
+> In warnfiguredialog (line 21)
+  In uigetdir (line 56)
+  In prep_training_data (line 17)
+  In run (line 96) 
+Error using javaObjectEDT
+Scalar input must be a java object
+
+Error in matlab.ui.internal.dialog.Dialog/getParentFrame (line 46)
+               obj.ParentFrame = javaObjectEDT(com.mathworks.hg.peer.utils.DialogUtilities.createParentWindow);
+
+Error in matlab.ui.internal.dialog.FileSystemChooser/getParentFrame (line 129)
+                parframe = getParentFrame@matlab.ui.internal.dialog.Dialog(obj);
+
+Error in matlab.ui.internal.dialog.FolderChooser/doShowDialog (line 70)
+            javaMethodEDT('showOpenDialog', obj.Peer, getParentFrame(obj));
+
+Error in matlab.ui.internal.dialog.FolderChooser/show (line 48)
+            doShowDialog(obj)
+
+Error in uigetdir_helper (line 32)
+    dirdlg.show();
+
+Error in uigetdir (line 57)
+[directoryname] = uigetdir_helper(varargin{:});
+
+Error in prep_training_data (line 17)
+inputDir = uigetdir('.', 'Select input images'' directory');
+
+Error in run (line 96)
+evalin('caller', [script ';']);
+ 
+Exception in thread "AWT-EventQueue-0" java.awt.HeadlessException
+	at java.awt.GraphicsEnvironment.checkHeadless(Unknown Source)
+	at java.awt.Window.<init>(Unknown Source)
+	at java.awt.Frame.<init>(Unknown Source)
+	at javax.swing.JFrame.<init>(Unknown Source)
+	at com.mathworks.mwswing.MJFrame.<init>(MJFrame.java:108)
+	at com.mathworks.mwswing.MJFrame.<init>(MJFrame.java:101)
+	at com.mathworks.hg.peer.utils.DialogUtilities$1.runWithOutput(DialogUtilities.java:58)
+	at com.mathworks.jmi.AWTUtilities$Invoker$2.watchedRun(AWTUtilities.java:475)
+	at com.mathworks.jmi.AWTUtilities$WatchedRunnable.run(AWTUtilities.java:436)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+	at java.awt.EventQueue.access$200(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+>>
+
+```
+- [Error using javaObjectEDT Scalar input must be a java object](https://github.com/icaoberg/docker-cellorganizer-jupyter-notebook/issues/12)  
+
+uigetdir會開一個ui讓你選資料夾  
+server沒UI，直接改程式碼  
+```
+%inputDir = uigetdir('.', 'Select input images'' directory');
+%inputDir = strcat(inputDir, '/');
+inputDir = './databaserelease1/';
+```
+### Other Command
+```
+$ 7za a -t7z -mx=9 databaserelease1-train.7z databaserelease1
+$ 7z x databaserelease1.7z
+```
+
+- [图像质量评估综述](https://zhuanlan.zhihu.com/p/32553977)
+
+
+质量评估可分为  
+图像质量评估(Image Quality Assessment, IQA)  
+视频质量评估(Video Quality Assessment, VQA)  
+
+IQA可分为主观评估和客观评估  
+
+主观评估一般采用  
+平均主观得分(Mean Opinion Score, MOS)  
+平均主观得分差异(Differential Mean Opinion Score, DMOS)  
+
+客观评估使用数学模型给出量化值  
+使用图像处理技术生成一批失真图像  
+
+IQA按照原始参考图像提供信息分成3类  
+全参考(Full Reference-IQA, FR-IQA)  
+半参考(Reduced Reference-IQA, RR-IQA)  
+无参考(No Reference-IQA, NR-IQA)盲参考(Blind IQA, BIQA)  
+
+原始(无失真、参考)图像和失真图像  
+只有失真图像  
