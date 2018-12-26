@@ -84,10 +84,39 @@ $ unzip opencv-2.4.13.zip
 $ cd opencv-2.4.13
 $ mkdir release
 $ cd release
+if CUDA9.0 up
 $ cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_QT=ON -DWITH_OPENGL=ON -DWITH_TBB=ON -DBUILD_NEW_PYTHON_SUPPORT=ON -DWITH_V4L=ON INSTALL_C_EXAMPLES=ON -DINSTALL_PYTHON_EXAMPLES=ON -DBUILD_EXAMPLES=ON -DWITH_XINE=ON -DINSTALL_TESTS=ON -DWITH_GSTREAMER=ON -DWITH_CUDA=OFF -DBUILD_EXAMPLES=ON ..
+else
+$ cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DBUILD_NEW_PYTHON_SUPPORT=ON -DWITH_V4L=ON INSTALL_C_EXAMPLES=ON -DINSTALL_PYTHON_EXAMPLES=ON -DBUILD_EXAMPLES=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DINSTALL_TESTS=ON -DWITH_GSTREAMER=ON -DBUILD_EXAMPLES=ON ..
 $ make all -j8
 $ make install
 
+```
+
+- Issue
+```
+$ python2.7
+Python 2.7.12 (default, Nov 12 2018, 14:36:49) 
+[GCC 5.4.0 20160609] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import cv2
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: /lib/x86_64-linux-gnu/libz.so.1: version `ZLIB_1.2.9' not found (required by /home/superuser/anaconda3/lib/libpng16.so.16)
+>>> 
+
+```
+
+- Solve
+- [/lib/x86_64-linux-gnu/libz.so.1: version `ZLIB_1.2.9' not found](https://stackoverflow.com/questions/48306849/lib-x86-64-linux-gnu-libz-so-1-version-zlib-1-2-9-not-found)
+
+```
+$ tar -xvf ~/Downloads/zlib-1.2.9.tar.gz
+$ cd zlib-1.2.9
+$ sudo -s
+$ ./configure; make; make install
+$ cd /lib/x86_64-linux-gnu
+$ ln -s -f /usr/local/lib/libz.so.1.2.9/lib libz.so.1
 ```
 ### (skip)Environment Startup  
 ```
@@ -190,7 +219,7 @@ $ source ~/.bashrc
 ### requirements
 ```
 ubuntu 16.04
-opencv 2.4.13
+opencv 2.4.13 (3.1.0)
 python 2.7
 matlab 2016b
 cuda 9.0
@@ -376,7 +405,9 @@ set( OpenCV_DIR "/home/lili/bruce/github/opencv/release/" )	---->	#set( OpenCV_D
 ```
 - Solve
 - [Caffe 1.0.0-rc3 make failed on Ubuntu 16.04 / CUDA 8.0](https://github.com/BVLC/caffe/issues/4492)  
+
 Edit Makefile.config  
+
 ```
 # CUSTOM_CXX := g++			---->	CUSTOM_CXX := /usr/bin/g++-5
 $ cmake .. -DCMAKE_CXX_COMPILER=g++-5
@@ -429,6 +460,7 @@ gcc和g++對齊到version 5.4.0 20160609 ->失敗 undefined reference to google:
 - [Caffe中的Protobuf版本问题](https://blog.csdn.net/phdsky/article/details/80994090)
 
 源碼安裝protobuf  
+
 ```
 $ wget https://github.com/google/protobuf/archive/v3.5.1.tar.gz
 $ tar -xzvf v3.5.1.tar.gz
@@ -445,12 +477,14 @@ $ sudo python2.7 setup.py test
 ```
 
 Edit Makefile.config 讓protobuf的路徑擺最前面  
+
 ```
 INCLUDE_DIRS := /usr/local/protobuf/include $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial /usr/include 
 LIBRARY_DIRS := /usr/local/protobuf/lib $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial #/usr/local/matlab2016b/bin/glnxa64/
 ```
 
 Edit CMakeLists.txt  
+
 ```
 From
 # ---[ Flags
@@ -465,6 +499,7 @@ endif()if()
 ```
 
 Edit Makefile  
+
 ```
 CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 NVCCFLAGS += -D_FORCE_INLINES -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS) -std=c++11
@@ -472,10 +507,31 @@ LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 ```
 - [Ubuntu16.04多个版本GCC编译器的安装和切换](https://www.cnblogs.com/uestc-mm/p/7511063.html)
 
+安裝gcc 5.4.0  
+
+```
+$ wget http://ftp.gnu.org/gnu/gcc/gcc-5.4.0/gcc-5.4.0.tar.bz2
+$ tar -jxvf gcc-5.4.0.tar.bz2
+$ cd gcc-5.4.0
+$ ./contrib/download_prerequisites
+(or [on centos])
+$ sudo yum install  gmp  gmp-devel  mpfr  mpfr-devel  libmpc  libmpc-devel
+$ mkdir build
+$ cd build
+$ ../configure -enable-checking=release -enable-languages=c,c++ -disable-multilib
+$ make -j8
+$ make install
+```
+
 對齊gcc g++版本  
+
 ```
 $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
 $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
+
+$ update-alternatives --install /usr/bin/gcc gcc /usr/local/bin/x86_64-unknown-linux-gnu-gcc-5.4.0 100
+$ update-alternatives --install /usr/bin/g++ g++ /usr/local/bin/x86_64-unknown-linux-gnu-g++ 100
+
 ```
 - [安装glog和gflags](https://blog.csdn.net/csm201314/article/details/75094527)
 - [GLog & GFlags 的安装](http://www.liuxiao.org/2018/04/glog-gflags-%E7%9A%84%E5%AE%89%E8%A3%85/)
@@ -489,8 +545,30 @@ $ ./autogen.sh
 $ ./configure CPPFLAGS="-I/usr/local/include -fPIC" LDFLAGS="-L/usr/local/lib"
 $ sudo make -j8
 $ sudo make install
+
+Libraries have been installed in:
+   /usr/local/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the `-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the `LD_RUN_PATH' environment variable
+     during linking
+   - use the `-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+
+$ vim /etc/ld.so.conf.d/glog.conf
+/usr/local/lib
+$ ldconfig
+
 ```
-gflags install from source  
+gflags install from source  (not success)
 ```
 $ git clone https://github.com/gflags/gflags
 $ cd gflags
@@ -539,7 +617,8 @@ Edit glfags/build/CMakeCache.txt
 --->CMAKE_CXX_FLAGS:STRING=-fPIC
 $ cd ~/gflags/
 $ mkdir build && cd build
-$ export CXXFLAGS="-fPIC" && cmake .. && make VERBOSE=1
+$ export CXXFLAGS="-fPIC" && cmake .. -DBUILD_SHARED_LIBS=ON && make VERBOSE=1
+$ export CXXFLAGS="-fPIC" && cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=/opt/rh/devtoolset-6/root/usr/bin/g++ -DCMAKE_C_COMPILER=/opt/rh/devtoolset-6/root/usr/bin/gcc
 $ make -j4
 $ make install
 $ cd ~/caffe/build && cmake .. -DCMAKE_CXX_COMPILER=g++-5 && make clean && make all -j8
@@ -860,3 +939,163 @@ IQA按照原始参考图像提供信息分成3类
 
 原始(无失真、参考)图像和失真图像  
 只有失真图像  
+
+- [Group MAD Competition - A New Methodology to Compare Objective Image Quality Models](https://ece.uwaterloo.ca/~zduanmu/cvpr16_gmad/)
+- [The rep for the RankIQA paper in ICCV 2017](https://github.com/xialeiliu/RankIQA/)
+- [The rep for the RankIQA paper in ICCV 2017](https://xialeiliu.github.io/RankIQA/)
+
+
+
+
+## 為了OpenCV版本一致，Caffe重build，OpenCV3.1.0->OpenCV2.4.13
+
+### error this file was generated by a newer version of protoc which is
+
+感覺是抓到其他版本的protobuf
+我下的是3.6.0
+系統是抓到3.5.1
+結果是因為~/caffe/CMakeLists.txt裡的OpenCV沒有指定好2.4.13的路徑
+set( OpenCV_DIR "/home/lili/bruce/opencv-2.4.13/build/" )
+find_package(OpenCV REQUIRED)
+接著
+$ sudo cmake .. -DCMAKE_CXX_COMPILER=g++-5
+$ sudo make clean
+$ sudo make all -j8
+編譯成功
+
+- [Build Caffe: #error This file was generated by an older version of protoc which is](https://github.com/BVLC/caffe/issues/5645)
+
+- [Protoc版本問題](https://www.zhihu.com/question/58592005)
+
+可以在Makefile文件中直接指定protoc路径命
+whereis protoc 可以查看哪些路径下安装了protoc
+which protoc 可以查看默认选用protoc的路径
+protoc --version 可以查看当前protoc版本
+指定protoc的版本可以在 Makefile文件内修改在Makefile 中修改这两句：
+$(Q)protoc --proto_path=$(PROTO_SRC_DIR) --cpp_out=$(PROTO_BUILD_DIR) $&lt;
+$(Q)protoc --proto_path=$(PROTO_SRC_DIR) --python_out=$(PY_PROTO_BUILD_DIR) $&lt;
+为$(Q)/usr/bin/protoc --proto_path=$(PROTO_SRC_DIR) --cpp_out=$(PROTO_BUILD_DIR) $&lt;
+$(Q)/usr/bin/protoc --proto_path=$(PROTO_SRC_DIR) --python_out=$(PY_PROTO_BUILD_DIR) $&lt;
+即把开头的"protoc"补全路径即可 (/usr/bin/protoc即为自己向指定给的版本路径)
+注：这种修改不会影响系统默认的protoc版本，只会在caffe编译的时候调用相应的proto版本
+
+
+
+- [Error in python interface. " Net.__init__(Net, str, str, int) did not match C++ signature"](https://github.com/BVLC/caffe/issues/3220)
+
+- Solve
+```
+diff --git a/python/caffe/_caffe.cpp b/python/caffe/_caffe.cpp
+index 4ea2ec6..4c558cb 100644
+--- a/python/caffe/_caffe.cpp
++++ b/python/caffe/_caffe.cpp
+@@ -75,7 +75,7 @@ void CheckContiguousArray(PyArrayObject* arr, string name,
+
+ // Net constructor for passing phase as int
+ shared_ptr<Net<Dtype> > Net_Init(
+-    string param_file, int phase) {
++    char* param_file, int phase) {
+   CheckFile(param_file);
+
+   shared_ptr<Net<Dtype> > net(new Net<Dtype>(param_file,
+@@ -85,7 +85,7 @@ shared_ptr<Net<Dtype> > Net_Init(
+
+ // Net construct-and-load convenience constructor
+ shared_ptr<Net<Dtype> > Net_Init_Load(
+-    string param_file, string pretrained_param_file, int phase) {
++    char* param_file, char* pretrained_param_file, int phase) {
+   CheckFile(param_file);
+   CheckFile(pretrained_param_file);
+```
+
+```
+$ make pycaffe
+```
+- Issue 
+```
+Fri, 14 Dec 2018 16:12:57 service_daemon.py[line:185] 
+ERROR inter exception:'NoneType' object has no attribute 'forward_all'
+```
+- Solve
+```
+constructer的self.net不需要None
+self.net = None		--->	#self.net = None
+```
+
+$ ls -lR|grep "^-"| wc -l
+
+```
+$ ps aux| grep python
+$ CUDA_VISIBLE_DEVICES=1 nohup python2.7  service_daemon.py --port 5002 > faceQA.log &
+$ nohup python2.7  service_daemon.py --port 5002 > faceQA.log &
+$ python2.7  service_daemon.py --port 5002
+$ kill -9 26593 26601
+```
+```
+$ ps aux | grep python
+superus+  3395  0.0  0.0  14220   928 pts/0    S+   10:59   0:00 grep --color=auto python
+superus+  4151  0.0  0.0 145432 19612 ?        S    Dec13   0:00 python2.7 service_daemon.py --port 5002
+superus+  4776  0.0  0.0 145432 19660 ?        S    Dec13   0:00 python2.7 service_daemon.py --port 5002
+superuser@dcn-gpu-data-v-l-02:/home/lili/progrem/gitlab/FaceRecognition/src/deploy$ kill -9 4151 4776
+superuser@dcn-gpu-data-v-l-02:/home/lili/progrem/gitlab/FaceRecognition/src/deploy$ ps aux | grep python
+superus+  3536  0.0  0.0  14220   972 pts/0    S+   11:00   0:00 grep --color=auto python
+```
+```
+ssh appdeploy@10.204.4.56
+Fc123456
+
+curl -H "Content-Type: application/json" -X POST  --data '{"classname":"/home/lili/progrem/gitlab/FaceRecognition/src/deploy/face_QA_deploy.py","model":"faceQA","version":"1","modeldir":"/home/lili/progrem/gitlab/FaceRecognition/src/deploy/models/face_QA/"}' http://10.204.4.200:5002/model/load
+
+curl -H "Content-Type: application/json" -X POST  --data '{"image_path":"/home/lili/bruce/github/RankIQA/data/live/gblur/img002.bmp"}' http://10.204.4.200:5002/predict/faceQA/1
+
+ssh appdeploy@10.204.54.81
+Fc123!@#
+
+
+appdeploy@10.204.57.145
+Fc123456
+mwopr@10.204.57.145
+Fc123QWE
+
+```
+
+## Face Quality Assessment
+
+### Step 1: 服务启动
+
+```
+$ nohup python2.7  service_daemon.py --port 5002 > faceQA.log &
+```
+
+### Step 2: 模型挂载
+
+- face quality assessment 
+
+```
+$ curl -H "Content-Type: application/json" -X POST  --data '{"classname":"/home/lili/progrem/gitlab/FaceRecognition/src/deploy/face_QA_deploy.py","model":"faceQA","version":"1","modeldir":"/home/lili/progrem/gitlab/FaceRecognition/src/deploy/models/face_QA/"}' http://10.204.4.200:5002/model/load
+ ```   
+
+### Step 3: 模型预测
+
+- face quality assessment 
+
+```
+$ curl -H "Content-Type: application/json" -X POST  --data '{"image_path":"/home/lili/bruce/github/RankIQA/data/live/gblur/img001.bmp"}' http://10.204.4.200:5002/predict/faceQA/1
+```
+
+### Step 4: 卸载模型
+
+
+### 查看模型
+
+```
+$ curl -H "Content-Type: application/json" -X POST  --data '{"model":"faceQA","version":"1"}' http://10.204.4.200:5002/model/list
+```
+
+
+- [dlib人臉姿態估算](https://blog.csdn.net/yuanlulu/article/details/82763170)
+
+- [dlib install](https://www.learnopencv.com/install-dlib-on-ubuntu/)
+
+- [dlib install 2](https://www.cnblogs.com/take-fetter/p/8318602.html)
+
